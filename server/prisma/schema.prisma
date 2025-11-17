@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// This model stores the TUTOR'S WEEKLY TEMPLATE
+// e.g., "Every Monday from 9:00 to 10:00, I teach Math."
+model Availability {
+  id        String  @id @default(cuid())
+  dayOfWeek Int     // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime String  // "09:00" (in 24-hour format)
+  endTime   String  // "10:00"
+  subject   String
+  mode      String  // "online" or "offline"
+  notes     String? // Optional notes
+}
+
+// This model stores the ACTUAL BOOKED CLASSES
+// e.g., "Student Jane Doe booked Math on Monday, Nov 20th at 9:00."
+model Booking {
+  id           String  @id @default(cuid())
+  studentName  String
+  studentEmail String
+  studentNotes String? // Optional notes from the student
+
+  subject String
+  mode    String
+
+  // We store the specific date and time for the booking
+  startTime DateTime
+  endTime   DateTime
+
+  // 'booked', 'conducted', 'cancelled', 'absent'
+  status String @default("booked")
+
+  createdAt DateTime @default(now())
+}
+ 
