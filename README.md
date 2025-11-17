@@ -1,6 +1,6 @@
 EduSched — A Tutor-Class Scheduling Mini-SaaS
 A full-stack scheduling and class-booking platform
-________________________________________
+
 Overview
 EduSched is a minimal SaaS platform designed to help private tutors manage their teaching schedule and allow students to book available class slots.
 It demonstrates full-stack engineering skills including:
@@ -13,7 +13,7 @@ It demonstrates full-stack engineering skills including:
 7.UI/UX structure
 8.Data validation
 9.Practical engineering trade-offs
-________________________________________️
+
 1) Tutor Availability Setup 
 Tutor can:
 •	Add weekly availability slots
@@ -23,7 +23,7 @@ Tutor can:
 •	Delete availability
 •	Slots automatically become unavailable once booked
 •	Edit Slots
-________________________________________
+
 2) Public Booking Page 
 Students can:
 •	View available slots
@@ -35,7 +35,7 @@ o	Email
 o	Phone
 •	Double-booking is prevented on backend
 •	Once booked, the slot moves from Available → Booked immediately
-________________________________________
+
 3) Tutor Dashboard for Class Management 
 Dashboard includes:
 •	Home Page with:
@@ -46,14 +46,14 @@ o	Cancelled
 •	Bookings Page:
 o	Lists Upcoming & Past classes separately
 o	Ability to mark class as:
-	Conducted
-	Cancelled
-	Student Absent
+  Conducted
+  Cancelled
+ 	Student Absent
 •	Availability Page:
 o	Add/Delete slots
 o	Weekly schedule management
 •	Public booking page link
-________________________________________
+
 Tech Stack
 Frontend
 •	React (Vite)
@@ -70,7 +70,7 @@ Dev Tools
 •	Nodemon
 •	Postman / Thunder Client (for API testing)
 •	GitHub
-________________________________________
+
 📂 Project Structure
 📦 EduSched
  ┣ 📁 client
@@ -90,13 +90,13 @@ ________________________________________
  │  │  ┗ schema.prisma
  │  ┗ package.json
  ┣ README.md
- ┗ THINKING.md
-________________________________________
+ ┗ THINKING
+
  Setup Instructions
 1️) Clone the Repository
 git clone <your-repo-url>
 cd EduSched
-________________________________________
+
 2️) Server Setup (Backend)
 cd server
 npm install
@@ -109,14 +109,14 @@ Start backend server
 npm run dev
 Server will run at:
  http://localhost:3000
-________________________________________
+
 3️) Client Setup (Frontend)
 cd ../client
 npm install
 npm run dev
 Frontend will run at:
  http://localhost:5173
-________________________________________
+
 API Testing Instructions
 Use Thunder Client / Postman:
 Availability
@@ -130,14 +130,14 @@ Bookings
 •	GET /bookings/future
 •	GET /bookings/past
 Double-booking is prevented automatically.
-________________________________________
+
 Automated Tests
 Test categories to include:
 •	Create availability
 •	Booking flow
 •	Conflict (double booking)
 •	Status update
-________________________________________
+
 Key Features Demo
 Tutor Dashboard
 •	Sidebar navigation
@@ -149,7 +149,7 @@ Public Booking Page
 •	Booked slots separated visually
 •	Booking form
 •	Slot instantly moves to “Booked” section
-________________________________________
+
  Design Highlights
 •	Clean API separation (REST)
 •	Prisma used for predictable schema + migrations
@@ -159,14 +159,14 @@ ________________________________________
 o	Dashboard (tutor view)
 o	Public Bookings (student view)
 •	Future-proof structure for adding login/admin features
-________________________________________
+
 Limitations
 •	No authentication (anyone can access dashboard)
 •	No calendar view (weekly view only)
 •	No recurring exception handling
 •	No email notifications
 •	No pagination for large bookings
-________________________________________
+
 Possible Future Improvements
 •	Tutor login system (JWT)
 •	Student account creation
