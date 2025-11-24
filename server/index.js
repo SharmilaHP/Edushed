@@ -52,7 +52,7 @@ app.put("/availability/:id", async (req, res) => {
     const { dayOfWeek, startTime, endTime, subject, mode, notes } = req.body;
 
     const updated = await prisma.availability.update({
-      where: { id: Number(id) },
+      where: { id },
       data: {
         dayOfWeek: Number(dayOfWeek),
         startTime,
@@ -76,7 +76,7 @@ app.delete("/availability/:id", async (req, res) => {
     const { id } = req.params;
 
     await prisma.availability.delete({
-      where: { id: Number(id) },
+      where: { id },
     });
 
     res.json({ message: "Availability deleted" });
@@ -157,7 +157,7 @@ app.put("/bookings/:id/status", async (req, res) => {
     const { status } = req.body;
 
     const updated = await prisma.booking.update({
-      where: { id: Number(id) },
+      where: { id },
       data: { status },
     });
 

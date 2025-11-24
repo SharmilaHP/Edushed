@@ -1,38 +1,34 @@
 import { Routes, Route } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard.jsx";
-import HomePage from "./pages/HomePage.jsx";
 import BookingsPage from "./pages/BookingsPage.jsx";
 import AvailabilityPage from "./pages/AvailabilityPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
 
 import PublicBooking from "./pages/PublicBooking.jsx";
 import BookingPage from "./pages/BookingPage.jsx";
 
-function App() {
+export default function App() {
   return (
     <Routes>
-      {/* PUBLIC ROUTES */}
+      {/* Public */}
       <Route path="/book" element={<PublicBooking />} />
       <Route path="/book/:id" element={<BookingPage />} />
 
-      {/* DASHBOARD ROUTES */}
+      {/* Dashboard with nested routes */}
       <Route path="/dashboard" element={<Dashboard />}>
         <Route path="home" element={<HomePage />} />
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="availability" element={<AvailabilityPage />} />
-
-        {/* Default inside dashboard */}
         <Route index element={<HomePage />} />
       </Route>
 
-      {/* ROOT ROUTE = HOME */}
+      {/* default route -> dashboard home */}
       <Route path="/" element={<Dashboard />}>
         <Route index element={<HomePage />} />
       </Route>
     </Routes>
   );
 }
-
-export default App;
 
 

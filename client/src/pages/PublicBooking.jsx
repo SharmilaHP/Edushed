@@ -3,12 +3,9 @@ import { useEffect, useState } from "react";
 function getNextDateForDay(dayOfWeek) {
   const today = new Date();
   const result = new Date();
-
   const currentDay = today.getDay();
   let diff = dayOfWeek - currentDay;
-
-  if (diff <= 0) diff += 7; // go to next week
-
+  if (diff <= 0) diff += 7;
   result.setDate(today.getDate() + diff);
   return result.toISOString().split("T")[0];
 }
@@ -18,18 +15,15 @@ export default function PublicBooking() {
   const [bookings, setBookings] = useState([]);
   const [selected, setSelected] = useState(null);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState(""); // restored email input
+  const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [message, setMessage] = useState("");
 
-  // Load availability + bookings
   const loadData = async () => {
     const resA = await fetch("http://localhost:3000/availability");
     const av = await resA.json();
-
     const resB = await fetch("http://localhost:3000/bookings");
     const bk = await resB.json();
-
     setAvailability(av);
     setBookings(bk);
   };
@@ -38,7 +32,6 @@ export default function PublicBooking() {
     loadData();
   }, []);
 
-  // Correct booking logic (booked, conducted, cancelled → all unavailable)
   const isSlotBooked = (slot) => {
     return bookings.some(
       (b) =>
@@ -48,14 +41,11 @@ export default function PublicBooking() {
     );
   };
 
-  // Split availability
   const availableSlots = availability.filter((slot) => !isSlotBooked(slot));
   const unavailableSlots = availability.filter((slot) => isSlotBooked(slot));
 
-  // Submit booking
   const submitBooking = async () => {
     if (!selected) return;
-
     const actualDate = getNextDateForDay(selected.dayOfWeek);
 
     const res = await fetch("http://localhost:3000/book", {
@@ -73,10 +63,8 @@ export default function PublicBooking() {
     });
 
     const data = await res.json();
-
-    if (data.error) {
-      setMessage("❌ " + data.error);
-    } else {
+    if (data.error) setMessage("❌ " + data.error);
+    else {
       setMessage("Booking Successful! Check your email.");
       setSelected(null);
       setName("");
@@ -87,27 +75,25 @@ export default function PublicBooking() {
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <button
-        onClick={() => (window.location.href = "/")}
-        style={{
-          padding: "8px 20px",
-          background: "black",
-          color: "white",
-          borderRadius: "8px",
-          marginBottom: "20px",
+    <div style={{ padding: 40, background: "#f6f9ff", color: "#1e2a3b", minHeight: "100vh" }}>
+      
+      <button 
+        onClick={() => (window.location.href = "/")} 
+        style={{ 
+          padding: "8px 20px", 
+          background: "#2563eb", 
+          color: "white", 
+          borderRadius: 8,
+          border: "none",
+          marginBottom: 20
         }}
       >
         Back to Tutor Dashboard
       </button>
 
-      <h1>Book a Class</h1>
+      <h1 style={{ color: "#1e2a3b" }}>Book a Class</h1>
+      {message && <p style={{ color: "green" }}>{message}</p>}
 
-      {message && (
-        <p style={{ color: "lightgreen", fontSize: "18px" }}>{message}</p>
-      )}
-
-      {/* AVAILABLE SLOTS */}
       <h2>Available Slots</h2>
 
       {availableSlots.length === 0 ? (
@@ -115,29 +101,23 @@ export default function PublicBooking() {
       ) : (
         <ol>
           {availableSlots.map((slot) => (
-            <li key={slot.id} style={{ marginBottom: "12px" }}>
+            <li key={slot.id} style={{ marginBottom: 12 }}>
               <strong>{slot.subject}</strong> — {slot.startTime} to {slot.endTime} ({slot.mode})
               <br />
-
-              <small style={{ opacity: 0.8 }}>
-                <strong>
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][slot.dayOfWeek]}
-                </strong>{" "}
-                · {getNextDateForDay(slot.dayOfWeek)}
+              <small style={{ color: "#4b5563" }}>
+                <strong>{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][slot.dayOfWeek]}</strong> · {getNextDateForDay(slot.dayOfWeek)}
                 {slot.notes && <> | Notes: <strong>{slot.notes}</strong></>}
               </small>
-
-              <button
-                style={{
-                  marginLeft: "10px",
-                  background: "green",
-                  color: "white",
-                  padding: "6px 14px",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
+              <button 
+                onClick={() => setSelected(slot)} 
+                style={{ 
+                  marginLeft: 10, 
+                  background: "#1e8e3e", 
+                  color: "white", 
+                  padding: "6px 12px", 
+                  borderRadius: 6, 
+                  border: "none" 
                 }}
-                onClick={() => setSelected(slot)}
               >
                 Book
               </button>
@@ -146,33 +126,27 @@ export default function PublicBooking() {
         </ol>
       )}
 
-      <hr style={{ margin: "30px 0", opacity: 0.2 }} />
+      <hr style={{ margin: "30px 0", opacity: 0.3 }} />
 
-      {/* BOOKED SLOTS */}
       {unavailableSlots.length > 0 && (
         <>
           <h2>Booked Slots</h2>
           <ol>
             {unavailableSlots.map((slot) => (
-              <li key={slot.id} style={{ marginBottom: "12px" }}>
+              <li key={slot.id} style={{ marginBottom: 12 }}>
                 <strong>{slot.subject}</strong> — {slot.startTime} to {slot.endTime} ({slot.mode})
                 <br />
-
-                <small style={{ opacity: 0.8 }}>
-                  <strong>
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][slot.dayOfWeek]}
-                  </strong>{" "}
-                  · {getNextDateForDay(slot.dayOfWeek)}
+                <small style={{ color: "#4b5563" }}>
+                  <strong>{["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][slot.dayOfWeek]}</strong> · {getNextDateForDay(slot.dayOfWeek)}
                   {slot.notes && <> | Notes: <strong>{slot.notes}</strong></>}
                 </small>
-
-                <span
-                  style={{
-                    marginLeft: "10px",
-                    padding: "4px 10px",
-                    background: "gray",
-                    color: "white",
-                    borderRadius: "6px",
+                <span 
+                  style={{ 
+                    marginLeft: 10, 
+                    padding: "4px 8px", 
+                    background: "#d1d5db", 
+                    color: "#374151", 
+                    borderRadius: 6 
                   }}
                 >
                   Booked
@@ -183,55 +157,34 @@ export default function PublicBooking() {
         </>
       )}
 
-      {/* BOOKING FORM */}
       {selected && (
-        <div
-          style={{
-            marginTop: "40px",
-            padding: "20px",
-            border: "1px solid white",
-            borderRadius: "10px",
+        <div 
+          style={{ 
+            marginTop: 30, 
+            padding: 18, 
+            border: "1px solid #d0d7e6", 
+            background: "white",
+            borderRadius: 8 
           }}
         >
           <h2>Confirm Booking</h2>
 
-          <p>
-            <strong>Subject:</strong> {selected.subject}
-          </p>
-          <p>
-            <strong>Time:</strong> {selected.startTime} — {selected.endTime}
-          </p>
+          <p><strong>Subject:</strong> {selected.subject}</p>
+          <p><strong>Time:</strong> {selected.startTime} — {selected.endTime}</p>
 
-          <input
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{ margin: "6px", padding: "8px", width: "200px" }}
-          />
+          <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} style={input} />
+          <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={input} />
+          <input placeholder="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} style={input} />
 
-          <input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ margin: "6px", padding: "8px", width: "200px" }}
-          />
-
-          <input
-            placeholder="Notes (optional)"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            style={{ margin: "6px", padding: "8px", width: "200px" }}
-          />
-
-          <button
-            onClick={submitBooking}
-            style={{
-              marginLeft: "10px",
-              background: "blue",
-              color: "white",
-              padding: "8px 20px",
-              borderRadius: "6px",
-              cursor: "pointer",
+          <button 
+            onClick={submitBooking} 
+            style={{ 
+              background: "#2563eb", 
+              color: "white", 
+              padding: "10px 18px",
+              border: "none",
+              borderRadius: 6,
+              marginTop: 10
             }}
           >
             Confirm Booking
@@ -241,3 +194,18 @@ export default function PublicBooking() {
     </div>
   );
 }
+
+const input = {
+  display: "block",
+  padding: "10px 12px",
+  width: 320,
+  margin: "8px 0",
+  borderRadius: 8,
+  border: "1px solid #d0d7e6",
+  background: "white",
+  color: "#1e2a3b",
+  fontSize: "15px"
+};
+
+
+ 

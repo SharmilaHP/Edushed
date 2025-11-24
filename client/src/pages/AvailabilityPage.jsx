@@ -1,217 +1,135 @@
-// client/src/pages/AvailabilityPage.jsx
 import { useEffect, useState } from "react";
 
 export default function AvailabilityPage() {
-  const [availList, setAvailList] = useState([]);
+  const [availability, setAvailability] = useState([]);
   const [message, setMessage] = useState("");
 
-  const [dayOfWeek, setDayOfWeek] = useState(1);
+  const [dayOfWeek, setDayOfWeek] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [subject, setSubject] = useState("");
-  const [mode, setMode] = useState("online");
+  const [mode, setMode] = useState("Online");
   const [notes, setNotes] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
-  const [editId, setEditId] = useState(null);
-
-  // ---------------- FETCH ALL AVAILABILITY ----------------
-  const fetchAvail = async () => {
-    try {
-      const res = await fetch("http://localhost:3000/availability");
-      const data = await res.json();
-      setAvailList(data);
-    } catch (err) {
-      console.error(err);
-      setMessage("Error loading availability");
-    }
+  const loadAvailability = async () => {
+    const res = await fetch("http://localhost:3000/availability");
+    const data = await res.json();
+    setAvailability(data);
   };
 
   useEffect(() => {
-    fetchAvail();
+    loadAvailability();
   }, []);
 
-  // ---------------- ADD NEW SLOT ----------------
-  const addAvailability = async () => {
+  const handleSubmit = async () => {
+    const payload = {
+      dayOfWeek: Number(dayOfWeek),
+      startTime,
+      endTime,
+      subject,
+      mode,
+      notes,
+    };
+
     try {
-      const res = await fetch("http://localhost:3000/availability", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          dayOfWeek: Number(dayOfWeek),
-          startTime,
-          endTime,
-          subject,
-          mode,
-          notes,
-        }),
-      });
+      let res;
+      if (editingId) {
+        res = await fetch(`http://localhost:3000/availability/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch("http://localhost:3000/availability", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
       const data = await res.json();
-      setMessage(data.message || "Added");
-      resetForm();
-      fetchAvail();
+      if (data.error) setMessage("Error: " + data.error);
+      else {
+        setMessage(editingId ? "Updated successfully" : "Added successfully");
+        resetForm();
+        loadAvailability();
+      }
     } catch (err) {
-      console.error(err);
-      setMessage("Error adding availability");
+      setMessage("Server error");
     }
   };
 
-  // ---------------- DELETE SLOT ----------------
-  const deleteSlot = async (id) => {
-    if (!confirm("Delete this availability?")) return;
-
+  const deleteAvailability = async (id) => {
+    if (!confirm("Are you sure you want to delete this slot?")) return;
     try {
-      const res = await fetch(`http://localhost:3000/availability/${id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      setMessage(data.message);
-      fetchAvail();
+      await fetch(`http://localhost:3000/availability/${id}`, { method: "DELETE" });
+      setMessage("Deleted successfully");
+      loadAvailability();
     } catch (err) {
-      console.error(err);
+      setMessage("Error deleting slot");
     }
   };
 
-  // ---------------- LOAD SLOT INTO FORM FOR EDITING ----------------
   const startEdit = (slot) => {
-    setEditId(slot.id);
+    setEditingId(slot.id);
     setDayOfWeek(slot.dayOfWeek);
     setStartTime(slot.startTime);
     setEndTime(slot.endTime);
     setSubject(slot.subject);
     setMode(slot.mode);
     setNotes(slot.notes || "");
-    setMessage("Editing Slot...");
   };
 
-  // ---------------- UPDATE SLOT ----------------
-  const updateAvailability = async () => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/availability/${editId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            dayOfWeek: Number(dayOfWeek),
-            startTime,
-            endTime,
-            subject,
-            mode,
-            notes,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      setMessage(data.message || "Updated");
-      resetForm();
-      fetchAvail();
-    } catch (err) {
-      console.error(err);
-      setMessage("Error updating availability");
-    }
-  };
-
-  // ---------------- RESET FORM ----------------
   const resetForm = () => {
-    setDayOfWeek(1);
+    setEditingId(null);
+    setDayOfWeek("");
     setStartTime("");
     setEndTime("");
     setSubject("");
-    setMode("online");
+    setMode("Online");
     setNotes("");
-    setEditId(null);
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ color: "black" }}>
       <h1>Manage Availability</h1>
-
       <p style={{ color: "lightgreen" }}>{message}</p>
 
-      {/* ---------------- FORM ---------------- */}
-      <h2>{editId ? "Edit Slot" : "Add New Slot"}</h2>
+      <h2>{editingId ? "Edit Slot" : "Add New Slot"}</h2>
 
-      <div style={{ display: "flex", flexDirection: "column", width: 300, gap: 10 }}>
-        <label>Day of Week (0=Sun,1=Mon...)</label>
-        <input value={dayOfWeek} onChange={(e) => setDayOfWeek(e.target.value)} />
-
-        <label>Start Time</label>
-        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-
-        <label>End Time</label>
-        <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-
-        <label>Subject</label>
-        <input value={subject} onChange={(e) => setSubject(e.target.value)} />
-
-        <label>Mode</label>
-        <select value={mode} onChange={(e) => setMode(e.target.value)}>
-          <option value="online">Online</option>
-          <option value="offline">Offline</option>
+      <div style={{ marginBottom: 20 }}>
+        <input placeholder="Day of Week (0=Sun)" value={dayOfWeek} onChange={(e) => setDayOfWeek(e.target.value)} style={input} />
+        <br />
+        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} style={input} />
+        <br />
+        <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} style={input} />
+        <br />
+        <input placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} style={input} />
+        <br />
+        <select value={mode} onChange={(e) => setMode(e.target.value)} style={input}>
+          <option>Online</option>
+          <option>Offline</option>
         </select>
-
-        <label>Notes</label>
-        <input value={notes} onChange={(e) => setNotes(e.target.value)} />
-
-        {/* ACTION BUTTONS */}
-        {editId ? (
-          <>
-            <button
-              onClick={updateAvailability}
-              style={btnBlue}
-            >
-              Update Slot
-            </button>
-
-            <button
-              onClick={resetForm}
-              style={btnGrey}
-            >
-              Cancel Edit
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={addAvailability}
-            style={btnBlue}
-          >
-            Add Availability
-          </button>
-        )}
+        <br />
+        <input placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} style={input} />
+        <br />
+        <button onClick={handleSubmit} style={btnBlue}>{editingId ? "Update Availability" : "Add Availability"}</button>
+        {editingId && <button onClick={resetForm} style={btnGray}>Cancel Edit</button>}
       </div>
 
-      <hr style={{ margin: "30px 0", opacity: 0.3 }} />
-
-      {/* ---------------- LIST ---------------- */}
       <h2>All Availability</h2>
-
-      {availList.length === 0 ? (
+      {availability.length === 0 ? (
         <p>No availability added.</p>
       ) : (
         <ul>
-          {availList.map((slot) => (
-            <li key={slot.id} style={{ marginBottom: 10 }}>
-              <strong>Day:</strong> {slot.dayOfWeek} |{" "}
-              <strong>Time:</strong> {slot.startTime}–{slot.endTime} |{" "}
-              <strong>Subject:</strong> {slot.subject} |{" "}
-              <strong>Mode:</strong> {slot.mode}{" "}
-              {slot.notes && <>| <strong>Notes:</strong> {slot.notes}</>}
-
-              <button
-                onClick={() => startEdit(slot)}
-                style={btnYellow}
-              >
-                Edit
-              </button>
-
-              <button
-                onClick={() => deleteSlot(slot.id)}
-                style={btnRed}
-              >
-                Delete
-              </button>
+          {availability.map((slot) => (
+            <li key={slot.id} style={{ marginBottom: 12 }}>
+              <strong>Day:</strong> {slot.dayOfWeek} | <strong>Time:</strong> {slot.startTime}–{slot.endTime} | <strong>Subject:</strong> {slot.subject} | <strong>Mode:</strong> {slot.mode} | <strong>Notes:</strong> {slot.notes || "None"}
+              <div style={{ marginTop: 6 }}>
+                <button style={btnYellow} onClick={() => startEdit(slot)}>Edit</button>
+                <button style={btnRed} onClick={() => deleteAvailability(slot.id)}>Delete</button>
+              </div>
             </li>
           ))}
         </ul>
@@ -220,42 +138,30 @@ export default function AvailabilityPage() {
   );
 }
 
-/* ---------------- BUTTON STYLES ---------------- */
-const btnBlue = {
-  padding: "8px 14px",
-  background: "blue",
-  color: "white",
-  border: "none",
-  borderRadius: 5,
-  cursor: "pointer",
+/* styles */
+const input = {
+  padding: "12px 14px",
+  width: "280px",
+  margin: "8px 0",
+  borderRadius: "8px",
+  border: "1px solid #d0d7e6",
+  background: "#ffffff",
+  color: "#1e2a3b",
+  fontSize: "15px",
+  outline: "none",
+  boxshadow:"0 1px 2px rgba(0,0,0,0.05)",
+};
+const selectInput = {
+  ...input,
+  width: "300px",
 };
 
-const btnRed = {
-  marginLeft: 10,
-  padding: "4px 8px",
-  background: "red",
-  color: "white",
-  border: "none",
-  borderRadius: 4,
-  cursor: "pointer",
+const textAreaInput = {
+  ...input,
+  height: "45px",
 };
+const btnBlue = { padding: "10px 18px", background: "#2563eb", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", marginRight: 8,boxshadow:"0 2px 4px  rgba(37,99,235,0.2)" };
+const btnYellow = { padding: "8px 14px", background: "#199111ff", color: "#fff", border: "none", borderRadius: "8px", marginRight: "8px" };
+const btnRed = { padding: "8px 12px", background: "#cb1111ff", color: "white", border: "none", borderRadius: "" };
+const btnGray = { padding: "8px 12px", background: "#666", color: "white", border: "none", borderRadius: 6, marginLeft: 8 };
 
-const btnYellow = {
-  marginLeft: 10,
-  padding: "4px 8px",
-  background: "orange",
-  color: "black",
-  border: "none",
-  borderRadius: 4,
-  cursor: "pointer",
-};
-
-const btnGrey = {
-  padding: "6px 10px",
-  background: "#555",
-  color: "white",
-  border: "none",
-  borderRadius: 5,
-  cursor: "pointer",
-  marginTop: 5,
-};

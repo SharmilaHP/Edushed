@@ -1,11 +1,9 @@
-// client/src/pages/BookingsPage.jsx
 import { useEffect, useState } from "react";
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState([]);
   const [message, setMessage] = useState("");
 
-  // Fetch all bookings
   const fetchBookings = async () => {
     try {
       const res = await fetch("http://localhost:3000/bookings");
@@ -17,21 +15,17 @@ export default function BookingsPage() {
     }
   };
 
-  // Update booking status
   const updateStatus = async (id, status) => {
     try {
-      const res = await fetch(
-        `http://localhost:3000/bookings/${id}/status`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status }),
-        }
-      );
+      const res = await fetch(`http://localhost:3000/bookings/${id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
 
       const data = await res.json();
       setMessage(data.message);
-      fetchBookings(); // refresh list
+      fetchBookings();
     } catch (err) {
       console.error(err);
       setMessage("Error updating status");
@@ -42,62 +36,31 @@ export default function BookingsPage() {
     fetchBookings();
   }, []);
 
-  // Split into upcoming / past
-    // ---- FIXED SPLITTING LOGIC ----
   const now = new Date();
-
-  // UPCOMING = future + still booked
-  const upcoming = bookings.filter(
-    (b) =>
-      b.status === "booked" &&
-      new Date(b.startTime) > now
-  );
-
-  // PAST = already happened OR status updated
-  const past = bookings.filter(
-    (b) =>
-      new Date(b.startTime) <= now ||
-      b.status === "conducted" ||
-      b.status === "cancelled" ||
-      b.status === "absent"
-  );
-
+  const upcoming = bookings.filter((b) => b.status === "booked" && new Date(b.startTime) > now);
+  const past = bookings.filter((b) => new Date(b.startTime) <= now || ["conducted", "cancelled", "absent"].includes(b.status));
 
   return (
     <div>
-      <h1>Bookings</h1>
-
+      <h1 style={{ marginBottom: 10 }}>Bookings</h1>
       <p style={{ color: "lightgreen" }}>{message}</p>
 
-      {/* UPCOMING */}
       <h2>Upcoming Classes</h2>
       {upcoming.length === 0 ? (
         <p>No upcoming classes.</p>
       ) : (
-        <ul>
+        <ul style={{ lineHeight: "1.9" }}>
           {upcoming.map((b) => (
-            <li key={b.id} style={{ marginBottom: 12 }}>
-              <strong>{b.subject}</strong> —
-              {" "}
-              {new Date(b.startTime).toLocaleString()}
-              {" "}({b.mode})
-              <div style={{ marginTop: 5 }}>
-                <button
-                  onClick={() => updateStatus(b.id, "conducted")}
-                  style={btn.green}
-                >
+            <li key={b.id}>
+              <strong>{b.subject}</strong> — {new Date(b.startTime).toLocaleString()} ({b.mode})
+              <div style={{ marginTop: 8 }}>
+                <button onClick={() => updateStatus(b.id, "conducted")} style={btn.green}>
                   Mark Conducted
                 </button>
-                <button
-                  onClick={() => updateStatus(b.id, "cancelled")}
-                  style={btn.orange}
-                >
+                <button onClick={() => updateStatus(b.id, "cancelled")} style={btn.orange}>
                   Cancel
                 </button>
-                <button
-                  onClick={() => updateStatus(b.id, "absent")}
-                  style={btn.red}
-                >
+                <button onClick={() => updateStatus(b.id, "absent")} style={btn.red}>
                   Mark Absent
                 </button>
               </div>
@@ -106,21 +69,16 @@ export default function BookingsPage() {
         </ul>
       )}
 
-      <hr />
+      <hr style={{ margin: "20px 0", opacity: 0.2 }} />
 
-      {/* PAST CLASSES */}
       <h2>Past & Completed Classes</h2>
       {past.length === 0 ? (
         <p>No past classes.</p>
       ) : (
-        <ul>
+        <ul style={{ lineHeight: "1.9" }}>
           {past.map((b) => (
-            <li key={b.id} style={{ marginBottom: 12 }}>
-              <strong>{b.subject}</strong> —
-              {" "}
-              {new Date(b.startTime).toLocaleString()}
-              {" "}
-              | <strong>Status:</strong> {b.status}
+            <li key={b.id}>
+              <strong>{b.subject}</strong> — {new Date(b.startTime).toLocaleString()} | <strong>Status:</strong> {b.status}
             </li>
           ))}
         </ul>
@@ -129,32 +87,19 @@ export default function BookingsPage() {
   );
 }
 
-const btn = {
-  green: {
-    background: "green",
-    color: "white",
-    padding: "6px 10px",
-    border: "none",
-    borderRadius: 4,
-    marginRight: 6,
-    cursor: "pointer",
-  },
-  orange: {
-    background: "orange",
-    color: "white",
-    padding: "6px 10px",
-    border: "none",
-    borderRadius: 4,
-    marginRight: 6,
-    cursor: "pointer",
-  },
-  red: {
-    background: "red",
-    color: "white",
-    padding: "6px 10px",
-    border: "none",
-    borderRadius: 4,
-    cursor: "pointer",
-  },
+const baseBtn = {
+  padding: "8px 12px",
+  border: "none",
+  borderRadius: 6,
+  color: "white",
+  marginRight: 8,
+  cursor: "pointer",
 };
+
+const btn = {
+  green: { ...baseBtn, background: "#1e8e3e" },
+  orange: { ...baseBtn, background: "#ff8c2b" },
+  red: { ...baseBtn, background: "#d43f3f" },
+};
+
 
