@@ -106,9 +106,9 @@ export default function Dashboard() {
 
           {/* PUBLIC BOOKING */}
           <a
-            href="/book"
+            href="/public-booking"
             style={
-              location.pathname === "/book"
+              location.pathname === "/public-booking"
                 ? sidebarBtnActive
                 : sidebarBtn
             }
@@ -175,6 +175,7 @@ const icon = {
   fontSize: "18px",
   color: "#2563eb", // blue icons
 };
+
 
 
 

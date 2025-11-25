@@ -37,69 +37,140 @@ export default function BookingsPage() {
   }, []);
 
   const now = new Date();
-  const upcoming = bookings.filter((b) => b.status === "booked" && new Date(b.startTime) > now);
-  const past = bookings.filter((b) => new Date(b.startTime) <= now || ["conducted", "cancelled", "absent"].includes(b.status));
+
+  const upcoming = bookings.filter(
+    (b) => b.status === "booked" && new Date(b.startTime) > now
+  );
+
+  const past = bookings.filter(
+    (b) =>
+      new Date(b.startTime) <= now ||
+      ["conducted", "cancelled", "absent"].includes(b.status)
+  );
+
+  const formatDate = (date) =>
+    new Date(date).toLocaleString("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
 
   return (
     <div>
-      <h1 style={{ marginBottom: 10 }}>Bookings</h1>
-      <p style={{ color: "lightgreen" }}>{message}</p>
+      <h1 style={pageTitle}>Bookings</h1>
+      <p style={{ color: "green" }}>{message}</p>
 
-      <h2>Upcoming Classes</h2>
+      {/* UPCOMING */}
+      <h2 style={sectionTitle}>Upcoming Classes</h2>
+
       {upcoming.length === 0 ? (
         <p>No upcoming classes.</p>
       ) : (
-        <ul style={{ lineHeight: "1.9" }}>
-          {upcoming.map((b) => (
-            <li key={b.id}>
-              <strong>{b.subject}</strong> — {new Date(b.startTime).toLocaleString()} ({b.mode})
-              <div style={{ marginTop: 8 }}>
-                <button onClick={() => updateStatus(b.id, "conducted")} style={btn.green}>
-                  Mark Conducted
-                </button>
-                <button onClick={() => updateStatus(b.id, "cancelled")} style={btn.orange}>
-                  Cancel
-                </button>
-                <button onClick={() => updateStatus(b.id, "absent")} style={btn.red}>
-                  Mark Absent
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        upcoming.map((b) => (
+          <div key={b.id} style={card}>
+            <div style={cardTitle}>
+              <strong>{b.subject}</strong> — {b.mode} ({formatDate(b.startTime)})
+            </div>
+
+            <div style={buttonRow}>
+              <button onClick={() => updateStatus(b.id, "conducted")} style={btnGreen}>
+                Mark Conducted
+              </button>
+              <button onClick={() => updateStatus(b.id, "cancelled")} style={btnOrange}>
+                Cancel
+              </button>
+              <button onClick={() => updateStatus(b.id, "absent")} style={btnRed}>
+                Mark Absent
+              </button>
+            </div>
+          </div>
+        ))
       )}
 
-      <hr style={{ margin: "20px 0", opacity: 0.2 }} />
+      {/* PAST */}
+      <h2 style={sectionTitle}>Past & Completed Classes</h2>
 
-      <h2>Past & Completed Classes</h2>
       {past.length === 0 ? (
         <p>No past classes.</p>
       ) : (
-        <ul style={{ lineHeight: "1.9" }}>
-          {past.map((b) => (
-            <li key={b.id}>
-              <strong>{b.subject}</strong> — {new Date(b.startTime).toLocaleString()} | <strong>Status:</strong> {b.status}
-            </li>
-          ))}
-        </ul>
+        past.map((b) => (
+          <div key={b.id} style={card}>
+            <div style={cardTitle}>
+              <strong>{b.subject}</strong> — {b.mode} ({formatDate(b.startTime)})
+            </div>
+
+            <div style={{ fontSize: 14, marginTop: 6 }}>
+              <strong>Status:</strong>{" "}
+              <span style={statusLabel(b.status)}>{b.status}</span>
+            </div>
+          </div>
+        ))
       )}
     </div>
   );
 }
 
+/* ---------------- STYLES ---------------- */
+
+const pageTitle = {
+  fontSize: "42px",
+  marginBottom: "25px",
+  fontWeight: 700,
+  color: "#1e2a3b",
+};
+
+const sectionTitle = {
+  fontSize: "22px",
+  margin: "25px 0 10px",
+  fontWeight: 600,
+  color: "#1e2a3b",
+};
+
+const card = {
+  background: "#ffffff",
+  padding: "20px",
+  borderRadius: 12,
+  border: "1px solid #e5e7eb",
+  marginBottom: 18,
+  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+};
+
+const cardTitle = {
+  fontSize: "17px",
+  fontWeight: 600,
+  marginBottom: 12,
+};
+
+const buttonRow = {
+  display: "flex",
+  gap: 10,
+};
+
 const baseBtn = {
-  padding: "8px 12px",
-  border: "none",
+  padding: "8px 14px",
   borderRadius: 6,
+  border: "none",
   color: "white",
-  marginRight: 8,
   cursor: "pointer",
+  fontWeight: 600,
 };
 
-const btn = {
-  green: { ...baseBtn, background: "#1e8e3e" },
-  orange: { ...baseBtn, background: "#ff8c2b" },
-  red: { ...baseBtn, background: "#d43f3f" },
+const btnGreen = { ...baseBtn, background: "#1e8e3e" };
+const btnOrange = { ...baseBtn, background: "#ff8c2b" };
+const btnRed = { ...baseBtn, background: "#d43f3f" };
+
+const statusLabel = (status) => {
+  const colors = {
+    conducted: "#16a34a",
+    cancelled: "#dc2626",
+    absent: "#ca8a04",
+    booked: "#4b5563",
+  };
+  return {
+    padding: "3px 10px",
+    borderRadius: 6,
+    background: colors[status] + "33",
+    color: colors[status],
+    fontWeight: 600,
+    fontSize: 13,
+  };
 };
-
-

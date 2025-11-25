@@ -3,8 +3,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: white ;
-  color: rgba(255, 255, 255, 0.87);
+  color-scheme: white;
+  color: #213547;
   background-color: #ffffff;
 
   font-synthesis: none;
@@ -24,10 +24,16 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  background: #f6f9ff;
+  font-family: Inter, sans-serif;
+}
+
+/* Optional */
+html, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 h1 {
@@ -65,13 +71,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-  html, body, #root {
-  background: #f6f9ff;     /* light white-blue background */
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-
-
 }

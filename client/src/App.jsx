@@ -1,34 +1,40 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-import Dashboard from "./pages/Dashboard.jsx";
-import BookingsPage from "./pages/BookingsPage.jsx";
-import AvailabilityPage from "./pages/AvailabilityPage.jsx";
-import HomePage from "./pages/HomePage.jsx";
-
+import LandingPage from "./pages/LandingPage.jsx";
 import PublicBooking from "./pages/PublicBooking.jsx";
-import BookingPage from "./pages/BookingPage.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import AvailabilityPage from "./pages/AvailabilityPage.jsx";
+import BookingsPage from "./pages/BookingsPage.jsx";
+import TutorLogin from "./pages/TutorLogin.jsx";
 
 export default function App() {
+  const isTutor = localStorage.getItem("isTutor") === "true";
+
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/book" element={<PublicBooking />} />
-      <Route path="/book/:id" element={<BookingPage />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/public-booking" element={<PublicBooking />} />
+      <Route path="/tutor-login" element={<TutorLogin />} />
 
-      {/* Dashboard with nested routes */}
-      <Route path="/dashboard" element={<Dashboard />}>
+      <Route
+        path="/dashboard"
+        element={isTutor ? <Dashboard /> : <Navigate to="/tutor-login" />}
+      >
         <Route path="home" element={<HomePage />} />
-        <Route path="bookings" element={<BookingsPage />} />
         <Route path="availability" element={<AvailabilityPage />} />
-        <Route index element={<HomePage />} />
+        <Route path="bookings" element={<BookingsPage />} />
       </Route>
 
-      {/* default route -> dashboard home */}
-      <Route path="/" element={<Dashboard />}>
-        <Route index element={<HomePage />} />
-      </Route>
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
+
+
+
+
+
+
 
 

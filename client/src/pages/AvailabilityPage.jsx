@@ -91,77 +91,132 @@ export default function AvailabilityPage() {
     setNotes("");
   };
 
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
   return (
-    <div style={{ color: "black" }}>
-      <h1>Manage Availability</h1>
-      <p style={{ color: "lightgreen" }}>{message}</p>
+    <div style={{ padding: "40px 50px", color: "#1e2a3b" }}>
+      <h1 style={{ fontSize: 42, fontWeight: 700, marginBottom: 30 }}>Manage Availability</h1>
 
-      <h2>{editingId ? "Edit Slot" : "Add New Slot"}</h2>
+      {/* Add New Slot Section */}
+      <div
+        style={{
+          background: "white",
+          padding: 30,
+          borderRadius: 16,
+          boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+          maxWidth: 520,
+          marginBottom: 40,
+        }}
+      >
+        <h2 style={{ fontSize: 22, marginBottom: 20 }}>Add New Slot</h2>
 
-      <div style={{ marginBottom: 20 }}>
-        <input placeholder="Day of Week (0=Sun)" value={dayOfWeek} onChange={(e) => setDayOfWeek(e.target.value)} style={input} />
-        <br />
+        <select value={dayOfWeek} onChange={(e) => setDayOfWeek(e.target.value)} style={input}>
+          <option value="">Select Day</option>
+          {dayNames.map((d, i) => (
+            <option key={i} value={i}>
+              {d}
+            </option>
+          ))}
+        </select>
+
         <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} style={input} />
-        <br />
         <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} style={input} />
-        <br />
+
         <input placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} style={input} />
-        <br />
+
         <select value={mode} onChange={(e) => setMode(e.target.value)} style={input}>
           <option>Online</option>
           <option>Offline</option>
         </select>
-        <br />
-        <input placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} style={input} />
-        <br />
-        <button onClick={handleSubmit} style={btnBlue}>{editingId ? "Update Availability" : "Add Availability"}</button>
-        {editingId && <button onClick={resetForm} style={btnGray}>Cancel Edit</button>}
+
+        <input placeholder="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} style={input} />
+
+        <button onClick={handleSubmit} style={btnBlue}>
+          {editingId ? "Update Availability" : "Add Availability"}
+        </button>
       </div>
 
-      <h2>All Availability</h2>
-      {availability.length === 0 ? (
-        <p>No availability added.</p>
-      ) : (
-        <ul>
-          {availability.map((slot) => (
-            <li key={slot.id} style={{ marginBottom: 12 }}>
-              <strong>Day:</strong> {slot.dayOfWeek} | <strong>Time:</strong> {slot.startTime}–{slot.endTime} | <strong>Subject:</strong> {slot.subject} | <strong>Mode:</strong> {slot.mode} | <strong>Notes:</strong> {slot.notes || "None"}
-              <div style={{ marginTop: 6 }}>
-                <button style={btnYellow} onClick={() => startEdit(slot)}>Edit</button>
-                <button style={btnRed} onClick={() => deleteAvailability(slot.id)}>Delete</button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* All Availability List */}
+      <h2 style={{ fontSize: 26, marginBottom: 20 }}>Your Current Availability</h2>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {availability.map((slot) => (
+          <div
+            key={slot.id}
+            style={{
+              background: "white",
+              padding: 22,
+              borderRadius: 14,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+            }}
+          >
+            <div style={{ fontSize: 18, fontWeight: 600 }}>
+              {dayNames[slot.dayOfWeek]} ({slot.startTime} – {slot.endTime}) (Online)
+            </div>
+
+            <div style={{ marginTop: 8, color: "#374151" }}>
+              <strong>Subject:</strong> {slot.subject} &nbsp; | &nbsp;
+              <strong>Mode:</strong> {slot.mode} &nbsp; | &nbsp;
+              <strong>Notes:</strong> {slot.notes || "None"}
+            </div>
+
+            {/* Buttons */}
+            <div style={{ marginTop: 15, display: "flex", gap: 10 }}>
+              <button style={btnGreen} onClick={() => startEdit(slot)}>
+                Edit
+              </button>
+              <button style={btnRed} onClick={() => deleteAvailability(slot.id)}>
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-/* styles */
+/* ------------------ Styles ------------------ */
+
 const input = {
-  padding: "12px 14px",
-  width: "280px",
-  margin: "8px 0",
-  borderRadius: "8px",
+  display: "block",
+  width: "100%",
+  padding: "10px 14px",
+  marginBottom: 14,
+  borderRadius: 10,
   border: "1px solid #d0d7e6",
-  background: "#ffffff",
-  color: "#1e2a3b",
-  fontSize: "15px",
-  outline: "none",
-  boxshadow:"0 1px 2px rgba(0,0,0,0.05)",
-};
-const selectInput = {
-  ...input,
-  width: "300px",
+  background: "#f9fbff",
+  fontSize: 15,
 };
 
-const textAreaInput = {
-  ...input,
-  height: "45px",
+const btnBlue = {
+  width: "100%",
+  padding: "12px",
+  background: "#2563eb",
+  color: "white",
+  borderRadius: 10,
+  border: "none",
+  cursor: "pointer",
+  fontWeight: 600,
+  marginTop: 10,
 };
-const btnBlue = { padding: "10px 18px", background: "#2563eb", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", marginRight: 8,boxshadow:"0 2px 4px  rgba(37,99,235,0.2)" };
-const btnYellow = { padding: "8px 14px", background: "#199111ff", color: "#fff", border: "none", borderRadius: "8px", marginRight: "8px" };
-const btnRed = { padding: "8px 12px", background: "#cb1111ff", color: "white", border: "none", borderRadius: "" };
-const btnGray = { padding: "8px 12px", background: "#666", color: "white", border: "none", borderRadius: 6, marginLeft: 8 };
+
+const btnGreen = {
+  padding: "8px 16px",
+  background: "#1e8e3e",
+  color: "white",
+  border: "none",
+  borderRadius: 8,
+  cursor: "pointer",
+};
+
+const btnRed = {
+  padding: "8px 16px",
+  background: "#d43f3f",
+  color: "white",
+  border: "none",
+  borderRadius: 8,
+  cursor: "pointer",
+};
+
 
