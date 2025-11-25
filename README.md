@@ -201,7 +201,6 @@ No pagination for large datasets
 
  Future Improvements
 
-Tutor Login (JWT Auth)
 Student Progress
 Email/SMS Notifications
 Payment Integration
